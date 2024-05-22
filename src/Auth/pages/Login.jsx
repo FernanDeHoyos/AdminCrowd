@@ -9,10 +9,13 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
+import { Link as RouterLink } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAuth } from '../../Hooks/useAuth';
 import { useForm } from '../../Hooks/useForm';
+import { AppBar, IconButton, Toolbar } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 function Copyright(props) {
   return (
@@ -27,28 +30,34 @@ function Copyright(props) {
   );
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
-
 const defaultTheme = createTheme();
 
 export const Login = () => {
-
-  const {startLogin} = useAuth()
-  const {formState, onInputChange, onReset} = useForm({
+  const { startLogin } = useAuth();
+  const { formState, onInputChange } = useForm({
     email: '',
     password: ''
-  })
- 
-  const {email, password} = formState
+  });
 
+  const { email, password } = formState;
 
-  const handleLogin =  () => {
-    startLogin({email, password})
-  }
+  const handleLogin = () => {
+    startLogin({ email, password });
+  };
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="xs" sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <AppBar position="absolute">
+          <Toolbar>
+            <IconButton edge="start" color="inherit" aria-label="open drawer" component={RouterLink} to="/">
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+              Login
+            </Typography>
+          </Toolbar>
+        </AppBar>
         <CssBaseline />
         <Box
           sx={{
@@ -56,6 +65,8 @@ export const Login = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            flexGrow: 1, // Ensure the box takes available vertical space
+            justifyContent: 'center', // Center contents vertically
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
@@ -64,7 +75,7 @@ export const Login = () => {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box  noValidate sx={{ mt: 1 }}>
+          <Box noValidate sx={{ mt: 1, width: '100%' }}>
             <TextField
               margin="normal"
               required
@@ -108,14 +119,14 @@ export const Login = () => {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="/auth/register" variant="body2">
+                <Link component={RouterLink} to="/auth/register" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
+        <Copyright sx={{ mt: 5 }} />
       </Container>
     </ThemeProvider>
   );

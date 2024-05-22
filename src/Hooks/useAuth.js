@@ -74,14 +74,21 @@ export const useAuth = () => {
 
                 if (error || profiles.length === 0) {
                     console.log('Error al obtener perfil:', error || 'Perfil no encontrado');
+                    dispatch(onLogoutIncident())
+                    dispatch(logout())
                     return;
                 }
 
                 const profile = profiles[0];
                 dispatch(login(profile)); // Actualiza el estado con el perfil
             } catch (error) {
+                dispatch(onLogoutIncident())
+                dispatch(logout())
                 console.log('Error al obtener perfil:', error);
             }
+        }else{
+            dispatch(onLogoutIncident())
+            dispatch(logout())
         }
     };
 

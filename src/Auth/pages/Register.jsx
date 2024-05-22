@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -9,9 +11,10 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { AppBar, IconButton, Toolbar } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuth } from '../../Hooks/useAuth';
 import { useForm } from '../../Hooks/useForm';
-import { useState } from 'react';
 
 function Copyright(props) {
   return (
@@ -39,7 +42,7 @@ export const Register = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState(false);
 
-  const { formState, onInputChange, onReset } = useForm({
+  const { formState, onInputChange } = useForm({
     first_name: '',
     last_name: '',
     phone: '',
@@ -82,14 +85,26 @@ export const Register = () => {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="md">
+      <Container component="main" maxWidth="xs" sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <AppBar position="absolute">
+          <Toolbar>
+            <IconButton edge="start" color="inherit" aria-label="open drawer" component={RouterLink} to="/">
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+              Register
+            </Typography>
+          </Toolbar>
+        </AppBar>
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 8,
+            marginTop: 16,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            flexGrow: 1, // Ensure the box takes available vertical space
+            justifyContent: 'center', // Center contents vertically
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
@@ -98,15 +113,15 @@ export const Register = () => {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box 
+          <Box
             component="form"
-            noValidate 
-            sx={{ 
+            noValidate
+            sx={{
               mt: 1,
               width: '100%', // Ensures the form takes the full width
             }}
           >
-            <Grid container spacing={2}>
+            <Grid container spacing={1}>
               <Grid item xs={12} sm={6}>
                 <TextField
                   error={error}
@@ -211,14 +226,15 @@ export const Register = () => {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="/auth/login" variant="body2">
+                <Link component={RouterLink} to="/auth/login" variant="body2">
                   {"¿Ya tienes una cuenta? Inicia sesión"}
                 </Link>
               </Grid>
             </Grid>
           </Box>
+          <Copyright sx={{ mt: 8, mb: 4 }} />
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
+        
       </Container>
     </ThemeProvider>
   );

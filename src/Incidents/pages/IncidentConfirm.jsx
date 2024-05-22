@@ -1,11 +1,12 @@
 import React, { Fragment, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { AppBar, Box, Button, Grid, IconButton, ImageList, ImageListItem, TextField, Toolbar, Typography } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useIncidentStore } from "../../Hooks/useIncidentStore";
 import { DialogConfirm } from "../components/DialogConfirm";
 import { Maps } from "../components/Maps";
 import { Encrypt } from '../../Helpers/Encrypt';
+import { MapIndice } from '../components/MapIndice';
 
 export const IncidentDialog = () => {
   const { UpdateIncident, RejectIncident } = useIncidentStore(); 
@@ -14,6 +15,7 @@ export const IncidentDialog = () => {
   const [message, setMessage] = useState('');
   const [title, setTitle] = useState('');
   const [action, setAction] = useState(null);
+  const navigate = useNavigate()
 
   const cipherText = localStorage.getItem('activeIncident');
   const data = decryptData(cipherText, import.meta.env.VITE_SECRET_KEY);
@@ -47,6 +49,7 @@ export const IncidentDialog = () => {
           images_url: storedIncident.images_url,
           confirm: true
         });
+        navigate(-1)
       } else if (action === 'reject') {
         RejectIncident(storedIncident.id);
         
@@ -125,7 +128,7 @@ export const IncidentDialog = () => {
         </Grid>
         <Grid item xs={12} md={4}>
         <Box sx={{ height: '450px', marginTop: 2 }}>
-              <Maps incidents={[storedIncident]} />
+              <MapIndice incidents={storedIncident} />
               <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
               <Button variant="contained" color="primary" sx={{ marginRight: 2 }} onClick={handleConfirm}>
                 Confirmar

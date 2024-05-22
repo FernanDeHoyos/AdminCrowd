@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; 
+import { useState } from 'react'; 
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
@@ -18,11 +18,12 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { mainListItems, secondaryListItems } from './ListItems';
 import Chart from './Chart';
-import Deposits from './Deposits';
 import { Orders } from './Orders';
 import { useAuth } from '../../Hooks/useAuth';
 import { Maps } from '../components/Maps'; 
 import { useIncidentStore } from '../../Hooks/useIncidentStore';
+import IncidentSummary from './IncidentSummary'; 
+import IncidentBarChart from './IncidentBarChart';
 
 function Copyright(props) {
   return (
@@ -167,7 +168,7 @@ export default function Dashboard() {
                 </Grid>
                 <Grid item xs={12} md={4} lg={3}>
                   <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 240 }}>
-                    <Deposits />
+                    <IncidentSummary />
                   </Paper>
                 </Grid>
                 <Grid item xs={12}>
@@ -180,7 +181,7 @@ export default function Dashboard() {
             {selectedComponent === 'Incidentes' && (
               <Grid container spacing={3}>
                 <Grid item xs={12}>
-                  <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
+                  <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '80vh' }}>
                     <Box sx={{ height: '100%', width: '100%' }}>
                       <Maps incidents={incidents} />
                     </Box>
@@ -188,9 +189,20 @@ export default function Dashboard() {
                 </Grid>
               </Grid>
             )}
-            {selectedComponent === 'Detalles' && <p>Detalles content</p>}
+            {selectedComponent === 'Detalles' && (
+              <Grid container spacing={3}>
+              <Grid item xs={12} md={12} lg={12}>
+                  <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
+                    <IncidentBarChart/>
+                  </Paper>
+                  <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
+                    <Chart/>
+                  </Paper>
+                </Grid>
+            </Grid>
+            )}
             {selectedComponent === 'Integrations' && <p>Integrations content</p>}
-            <Copyright sx={{ pt: 4 }} />
+           
           </Container>
         </Box>
       </Box>

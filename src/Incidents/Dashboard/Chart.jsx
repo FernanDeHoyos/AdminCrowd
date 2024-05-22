@@ -1,35 +1,47 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
+import { useSelector } from 'react-redux';
 import { LineChart, axisClasses } from '@mui/x-charts';
-
 import Title from './Title';
 
-// Generate Sales Data
-function createData(time, amount) {
-  return { time, amount: amount ?? null };
+// Función para crear datos agrupados por fecha
+function createData(date, count) {
+  return { date, count: count ?? null };
 }
 
-const data = [
-  createData('00:00', 0),
-  createData('03:00', 300),
-  createData('06:00', 600),
-  createData('09:00', 800),
-  createData('12:00', 1500),
-  createData('15:00', 2000),
-  createData('18:00', 2400),
-  createData('21:00', 2400),
-  createData('24:00'),
-];
+// Función para agrupar incidentes por fecha
+function groupIncidentsByDate(incidents) {
+  const groupedData = {};
+  
+  incidents.forEach((incident) => {
+    const date = new Date(incident.created_at).toLocaleDateString(); // Obtener solo la fecha en formato "MM/DD/YYYY"
+    
+    if (!groupedData[date]) {
+      groupedData[date] = 0;
+    }
+    groupedData[date]++;
+  });
+
+  return Object.keys(groupedData).map(date => createData(date, groupedData[date])).sort((a, b) => new Date(a.date) - new Date(b.date));
+}
 
 export default function Chart() {
   const theme = useTheme();
+  const {incidents} = useSelector((state) => state.incident);
+  const [groupedIncidents, setGroupedIncidents] = useState([]);
+
+  useEffect(() => {
+    if (incidents.length > 0) {
+      setGroupedIncidents(groupIncidentsByDate(incidents));
+    }
+  }, [incidents]);
 
   return (
     <React.Fragment>
-      <Title>Today</Title>
+      <Title>Incidentes por Fecha</Title>
       <div style={{ width: '100%', flexGrow: 1, overflow: 'hidden' }}>
         <LineChart
-          dataset={data}
+          dataset={groupedIncidents}
           margin={{
             top: 16,
             right: 20,
@@ -39,26 +51,26 @@ export default function Chart() {
           xAxis={[
             {
               scaleType: 'point',
-              dataKey: 'time',
-              tickNumber: 2,
+              dataKey: 'date',
+              tickNumber: 8,
               tickLabelStyle: theme.typography.body2,
             },
           ]}
           yAxis={[
             {
-              label: 'Sales ($)',
+              label: 'Número de Incidentes',
               labelStyle: {
                 ...theme.typography.body1,
                 fill: theme.palette.text.primary,
               },
               tickLabelStyle: theme.typography.body2,
-              max: 2500,
-              tickNumber: 3,
+              max: Math.max(...groupedIncidents.map(data => data.count)) + 1,
+              tickNumber: 5,
             },
           ]}
           series={[
             {
-              dataKey: 'amount',
+              dataKey: 'count',
               showMark: false,
               color: theme.palette.primary.light,
             },

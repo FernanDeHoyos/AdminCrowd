@@ -35,7 +35,6 @@ export const Orders = () => {
                 <TableCell>Descripcion</TableCell>
                 <TableCell>Tipo</TableCell>
                 <TableCell>Nivel de riesgo</TableCell>
-                <TableCell>Ubicacion</TableCell>
                 <TableCell>Confirmado</TableCell>
                 <TableCell>Revisar</TableCell>
               </TableRow>
@@ -45,11 +44,10 @@ export const Orders = () => {
                 .filter((incident) => incident.confirm === false)
                 .map((incident) => (
                   <TableRow key={incident.id}>
-                    <TableCell>{incident.created_at}</TableCell>
+                    <TableCell>{new Date(incident.created_at).toLocaleString()}</TableCell>
                     <TableCell>{incident.description}</TableCell>
                     <TableCell>{incident.type_incident}</TableCell>
                     <TableCell>{incident.type_risk}</TableCell>
-                    <TableCell>{`Lat: ${incident.ubication.lat}, Lng: ${incident.ubication.lng}`}</TableCell>
                     <TableCell>{incident.confirm ? 'Confirmado' : 'No confirmado'}</TableCell>
                     <TableCell>
                       <Link
