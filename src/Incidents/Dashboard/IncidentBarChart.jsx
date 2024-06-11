@@ -3,27 +3,36 @@ import { useTheme } from '@mui/material/styles';
 import { useSelector } from 'react-redux';
 import { BarChart } from '@mui/x-charts/BarChart';
 import Title from './Title';
-import { FormControl, InputLabel, MenuItem, Select, Box } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, Box, Grid } from '@mui/material';
+import { axisClasses } from '@mui/x-charts';
 
-// Función para crear datos agrupados por fecha
-function createData(date, count) {
-  return { date, count: count ?? null };
-}
-
-// Función para agrupar incidentes por fecha
-function groupIncidentsByDate(incidents) {
+// Función para agrupar incidentes por fecha y tipo de riesgo
+function groupIncidentsByDateAndRisk(incidents, groupBy) {
   const groupedData = {};
 
   incidents.forEach((incident) => {
-    const date = new Date(incident.created_at).toLocaleDateString(); // Obtener solo la fecha en formato "MM/DD/YYYY"
+    const date = new Date(incident.created_at);
+    const formattedDate = groupBy === 'day' 
+      ? date.toLocaleDateString() 
+      : `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`; // Formato "YYYY-MM"
 
-    if (!groupedData[date]) {
-      groupedData[date] = 0;
+    const type = incident.type_risk;
+
+    if (!groupedData[formattedDate]) {
+      groupedData[formattedDate] = {};
     }
-    groupedData[date]++;
+    if (!groupedData[formattedDate][type]) {
+      groupedData[formattedDate][type] = 0;
+    }
+    groupedData[formattedDate][type]++;
   });
 
-  return Object.keys(groupedData).map(date => createData(date, groupedData[date])).sort((a, b) => new Date(a.date) - new Date(b.date));
+  const data = Object.keys(groupedData).map(date => ({
+    date,
+    ...groupedData[date],
+  }));
+
+  return data.sort((a, b) => new Date(a.date) - new Date(b.date));
 }
 
 export default function IncidentBarChart() {
@@ -31,18 +40,16 @@ export default function IncidentBarChart() {
   const { incidents } = useSelector((state) => state.incident);
   const [groupedIncidents, setGroupedIncidents] = useState([]);
   const [selectedRiskType, setSelectedRiskType] = useState('All');
+  const [groupBy, setGroupBy] = useState('day'); // Estado para el tipo de agrupación
 
   useEffect(() => {
     if (incidents.length > 0) {
-      const filteredIncidents = selectedRiskType === 'All' 
-        ? incidents 
+      const filteredIncidents = selectedRiskType === 'All'
+        ? incidents
         : incidents.filter(incident => incident.type_risk === selectedRiskType);
-      setGroupedIncidents(groupIncidentsByDate(filteredIncidents));
+      setGroupedIncidents(groupIncidentsByDateAndRisk(filteredIncidents, groupBy));
     }
-  }, [incidents, selectedRiskType]);
-
-  const xLabels = groupedIncidents.map(data => data.date);
-  const yData = groupedIncidents.map(data => data.count);
+  }, [incidents, selectedRiskType, groupBy]); // Añadir groupBy a las dependencias
 
   const riskTypes = [...new Set(incidents.map(incident => incident.type_risk))];
 
@@ -50,43 +57,50 @@ export default function IncidentBarChart() {
     <React.Fragment>
       <Title>Incidentes por Fecha</Title>
       <Box sx={{ width: '100%', marginBottom: 2 }}>
-        <FormControl fullWidth sx={{ minWidth: 120 }}>
-          <InputLabel shrink>Tipo de Riesgo</InputLabel>
-          <Select
-            value={selectedRiskType}
-            onChange={(e) => setSelectedRiskType(e.target.value)}
-            label="Tipo de Riesgo"
-            sx={{ minWidth: 120 }}
-          >
-            <MenuItem value="All">Todos</MenuItem>
-            {riskTypes.map((type, index) => (
-              <MenuItem key={index} value={type}>{type}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Grid container spacing={2}>
+          <Grid item xs={6} md={4}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Tipo de Riesgo</InputLabel>
+              <Select
+                value={selectedRiskType}
+                onChange={(e) => setSelectedRiskType(e.target.value)}
+                label="Tipo de Riesgo"
+              >
+                <MenuItem value="All">Todos</MenuItem>
+                {riskTypes.map((type, index) => (
+                  <MenuItem key={index} value={type}>{type}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6} md={4}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Agrupar Por</InputLabel>
+              <Select
+                value={groupBy}
+                onChange={(e) => setGroupBy(e.target.value)}
+                label="Agrupar Por"
+              >
+                <MenuItem value="day">Día</MenuItem>
+                <MenuItem value="month">Mes</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
       </Box>
       <Box sx={{ width: '100%', height: '60%', flexGrow: 1, overflow: 'hidden' }}>
         <BarChart
+          dataset={groupedIncidents}
+          xAxis={[{ scaleType: 'band', dataKey: 'date' }]}
           series={[
-            { data: yData, label: 'Número de Incidentes', id: 'incidentCount' },
+            { dataKey: 'Alto riesgo con apoyo', label: 'Alto riesgo con apoyo', color: theme.palette.error.main },
+            { dataKey: 'Mediano riesgo', label: 'Mediano riesgo', color: theme.palette.warning.main },
+            { dataKey: 'Bajo riesgo', label: 'Bajo riesgo', color: theme.palette.success.main },
           ]}
-          xAxis={[{ data: xLabels, scaleType: 'band' }]}
-          margin={{
-            top: 50,
-            right: 20,
-            bottom: 40,
-            left: 70,
-          }}
+          yAxis={[{ label: 'Número de Incidentes' }]}
           sx={{
-            '& .MuiChart-axisLeft .MuiChart-tickLabel': {
-              fill: theme.palette.text.secondary,
-            },
-            '& .MuiChart-axisBottom .MuiChart-tickLabel': {
-              fill: theme.palette.text.secondary,
-            },
-            '& .MuiChart-axisLeft .MuiChart-label': {
-              transform: 'translateX(-25px)',
-              fill: theme.palette.text.primary,
+            [`& .${axisClasses.left} .${axisClasses.label}`]: {
+              transform: 'translate(0px, 0)',
             },
           }}
         />

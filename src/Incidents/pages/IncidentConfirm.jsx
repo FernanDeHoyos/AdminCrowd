@@ -1,10 +1,9 @@
-import React, { Fragment, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { AppBar, Box, Button, Grid, IconButton, ImageList, ImageListItem, TextField, Toolbar, Typography } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useIncidentStore } from "../../Hooks/useIncidentStore";
 import { DialogConfirm } from "../components/DialogConfirm";
-import { Maps } from "../components/Maps";
 import { Encrypt } from '../../Helpers/Encrypt';
 import { MapIndice } from '../components/MapIndice';
 
@@ -16,10 +15,25 @@ export const IncidentDialog = () => {
   const [title, setTitle] = useState('');
   const [action, setAction] = useState(null);
   const navigate = useNavigate()
+  const [visible, setVisible] = useState(true)
 
   const cipherText = localStorage.getItem('activeIncident');
   const data = decryptData(cipherText, import.meta.env.VITE_SECRET_KEY);
   const storedIncident = data ? JSON.parse(data) : null;
+
+  const isConfirm = () => {
+    if(storedIncident.confirm) {
+      console.log('ya esta confirmado');
+      setVisible(true)
+    }else{
+      setVisible(false)
+    }
+    
+  }
+
+  useEffect(() =>{
+    isConfirm()
+  },[])
 
   const handleConfirm = () => {
     setMessage('¿Estás seguro de que deseas confirmar este incidente? Una vez confirmado, será mostrado al público.');
@@ -52,7 +66,7 @@ export const IncidentDialog = () => {
         navigate(-1)
       } else if (action === 'reject') {
         RejectIncident(storedIncident.id);
-        
+         navigate(-1)
       }
     }
   };
@@ -61,11 +75,15 @@ export const IncidentDialog = () => {
     return <Typography variant="h6">No hay incidentes almacenados.</Typography>;
   }
 
+  const onClickNav = () => {
+    navigate(-1)
+  }
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="absolute">
         <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="open drawer" component={RouterLink} to="/">
+          <IconButton edge="start" color="inherit" aria-label="open drawer" onClick={onClickNav}>
             <ArrowBackIcon />
           </IconButton>
           <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
@@ -130,12 +148,29 @@ export const IncidentDialog = () => {
         <Box sx={{ height: '450px', marginTop: 2 }}>
               <MapIndice incidents={storedIncident} />
               <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
-              <Button variant="contained" color="primary" sx={{ marginRight: 2 }} onClick={handleConfirm}>
+               {!visible ? (<>
+                <Button 
+              variant="contained" 
+              color="primary" 
+              sx={{ marginRight: 2 }} 
+              onClick={handleConfirm}
+              disabled={visible}>
                 Confirmar
               </Button>
-              <Button variant="contained" color="secondary" onClick={handleReject}>
+              <Button 
+              variant="contained" 
+              color="secondary" 
+              onClick={handleReject}
+              disabled={visible}>
                 No aceptar
               </Button>
+               </>) : (
+                <Button 
+                variant="contained" 
+                color="secondary">
+                 Eliminar
+                </Button>
+              )}
             </Box>
             </Box>
         </Grid>

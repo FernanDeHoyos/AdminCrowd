@@ -24,6 +24,9 @@ import { Maps } from '../components/Maps';
 import { useIncidentStore } from '../../Hooks/useIncidentStore';
 import IncidentSummary from './IncidentSummary'; 
 import IncidentBarChart from './IncidentBarChart';
+import { DetailZoneMap } from '../components/DetailZoneMap';
+import { PieCharts } from './PieChart';
+import { HorizontalBars } from './HorizontalBars';
 
 function Copyright(props) {
   return (
@@ -193,7 +196,13 @@ export default function Dashboard() {
               <Grid container spacing={3}>
               <Grid item xs={12} md={12} lg={12}>
                   <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
+                    <PieCharts/>
+                  </Paper>
+                  <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
                     <IncidentBarChart/>
+                  </Paper>
+                  <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
+                    <HorizontalBars/>
                   </Paper>
                   <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
                     <Chart/>
@@ -201,7 +210,17 @@ export default function Dashboard() {
                 </Grid>
             </Grid>
             )}
-            {selectedComponent === 'Integrations' && <p>Integrations content</p>}
+            {selectedComponent === 'Integrations' && (
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '80vh' }}>
+                    <Box sx={{ height: '100%', width: '100%' }}>
+                      <DetailZoneMap incidents={incidents} />
+                    </Box>
+                  </Paper>
+                </Grid>
+              </Grid>
+            )}
            
           </Container>
         </Box>

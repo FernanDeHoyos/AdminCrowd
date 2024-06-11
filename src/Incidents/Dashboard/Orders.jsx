@@ -16,7 +16,6 @@ export const Orders = () => {
     loadAllIncidents();
   }, []);
 
-  console.log(incidents);
 
   const handleIncidentClick = (incident) => {
     ActiveIncident(incident);
