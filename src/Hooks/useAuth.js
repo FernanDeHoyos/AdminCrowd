@@ -95,7 +95,28 @@ export const useAuth = () => {
 
     const startRegister = async ({ first_name, last_name, phone, email, password }) => {
         try {
-            const passwordEncrypt = encryptData(password, import.meta.env.VITE_SECRET_KEY)
+            // Verificar si el correo ya está registrado
+            const { data: existingUser, error: fetchError } = await supabase
+                .from('profiles')
+                .select('email')
+                .eq('email', email)
+                .single();
+    
+            if (fetchError && fetchError.code !== 'PGRST116') {
+                // Manejar errores que no sean de "no encontrado"
+                throw fetchError;
+            }
+    
+            if (existingUser) {
+                // El correo ya está registrado
+                console.log('El correo ya está registrado');
+                return existingUser;
+            }
+    
+            // Encriptar la contraseña
+            const passwordEncrypt = encryptData(password, import.meta.env.VITE_SECRET_KEY);
+    
+            // Insertar el nuevo usuario
             const { data, error } = await supabase
                 .from('profiles')
                 .insert([{
@@ -105,17 +126,19 @@ export const useAuth = () => {
                     phone: phone,
                     password: passwordEncrypt
                 }])
-                .select()
-
-            if (error) return console.log(error);
-
+                .select();
+    
+            if (error) {
+                console.log(error);
+                return;
+            }
+    
             console.log(data);
-
+    
         } catch (error) {
             console.log(error);
         }
-    }
-
+    };
 
     const starLogout = () => {
         try {

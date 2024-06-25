@@ -15,7 +15,6 @@ export const Landing =() => {
             IncidentSoft
           </Typography>
           <Button color="inherit" component={Link} to="/auth/login">Inicio de Sesión</Button>
-          <Button color="inherit" component={Link} to="/auth/register">Registro</Button>
         </Toolbar>
       </AppBar>
       <Box textAlign="center" my={5}>
@@ -27,9 +26,6 @@ export const Landing =() => {
       </Typography>
       <Button variant="contained" color="primary" size="large" component={Link} to="/login" style={{ marginRight: '1rem' }}>
         Inicio de Sesión
-      </Button>
-      <Button variant="outlined" color="primary" size="large" component={Link} to="/register">
-        Registro
       </Button>
     </Box>
   </ThemeProvider>

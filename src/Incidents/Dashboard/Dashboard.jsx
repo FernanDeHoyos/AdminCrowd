@@ -1,4 +1,4 @@
-import { useState } from 'react'; 
+import { useState } from 'react';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
@@ -20,13 +20,14 @@ import { mainListItems, secondaryListItems } from './ListItems';
 import Chart from './Chart';
 import { Orders } from './Orders';
 import { useAuth } from '../../Hooks/useAuth';
-import { Maps } from '../components/Maps'; 
+import { Maps } from '../components/Maps';
 import { useIncidentStore } from '../../Hooks/useIncidentStore';
-import IncidentSummary from './IncidentSummary'; 
+import IncidentSummary from './IncidentSummary';
 import IncidentBarChart from './IncidentBarChart';
 import { DetailZoneMap } from '../components/DetailZoneMap';
 import { PieCharts } from './PieChart';
 import { HorizontalBars } from './HorizontalBars';
+import { AddUser } from './AddUser';
 
 function Copyright(props) {
   return (
@@ -91,7 +92,7 @@ const defaultTheme = createTheme();
 
 export default function Dashboard() {
   const [open, setOpen] = useState(true);
-  const {incidents} = useIncidentStore();
+  const { incidents } = useIncidentStore();
   const [selectedComponent, setSelectedComponent] = useState('Dashboard');
   const { starLogout } = useAuth();
 
@@ -194,21 +195,21 @@ export default function Dashboard() {
             )}
             {selectedComponent === 'Detalles' && (
               <Grid container spacing={3}>
-              <Grid item xs={12} md={12} lg={12}>
+                <Grid item xs={12} md={12} lg={12}>
                   <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
-                    <PieCharts/>
+                    <PieCharts />
                   </Paper>
                   <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
-                    <IncidentBarChart/>
+                    <IncidentBarChart />
                   </Paper>
                   <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
-                    <HorizontalBars/>
+                    <HorizontalBars />
                   </Paper>
                   <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
-                    <Chart/>
+                    <Chart />
                   </Paper>
                 </Grid>
-            </Grid>
+              </Grid>
             )}
             {selectedComponent === 'Integrations' && (
               <Grid container spacing={3}>
@@ -221,7 +222,20 @@ export default function Dashboard() {
                 </Grid>
               </Grid>
             )}
-           
+            {selectedComponent === 'user' && (
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '80vh' }}>
+                    <Box sx={{ height: '100%', width: '100%' }}>
+                      <AddUser />
+                    </Box>
+                  </Paper>
+                </Grid>
+              </Grid>
+            )}
+
+
+
           </Container>
         </Box>
       </Box>
