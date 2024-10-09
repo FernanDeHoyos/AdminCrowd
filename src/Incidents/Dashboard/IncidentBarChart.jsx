@@ -5,26 +5,30 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import Title from './Title';
 import { FormControl, InputLabel, MenuItem, Select, Box, Grid } from '@mui/material';
 import { axisClasses } from '@mui/x-charts';
+import { comuna_cinco, comuna_cuatro, comuna_dos, comuna_nueve_dos, comuna_nueve_uno, comuna_ocho, comuna_ocho_dos, comuna_seis, comuna_siete, comuna_tres, comuna_uno } from '../../Helpers/Coordenadas';
+import { isIncidentInComuna } from '../../Helpers/PuntoEnPligono';
 
-// Función para agrupar incidentes por fecha y tipo de riesgo
-function groupIncidentsByDateAndRisk(incidents, groupBy) {
+// Function to group incidents by date, risk type, and commune
+function groupIncidentsByDateAndRisk(incidents, groupBy, selectedComuna) {
   const groupedData = {};
 
   incidents.forEach((incident) => {
     const date = new Date(incident.created_at);
     const formattedDate = groupBy === 'day' 
       ? date.toLocaleDateString() 
-      : `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`; // Formato "YYYY-MM"
+      : `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`; // Format "YYYY-MM"
 
     const type = incident.type_risk;
 
-    if (!groupedData[formattedDate]) {
-      groupedData[formattedDate] = {};
+    if (!selectedComuna || isIncidentInComuna(incident, selectedComuna)) {
+      if (!groupedData[formattedDate]) {
+        groupedData[formattedDate] = {};
+      }
+      if (!groupedData[formattedDate][type]) {
+        groupedData[formattedDate][type] = 0;
+      }
+      groupedData[formattedDate][type]++;
     }
-    if (!groupedData[formattedDate][type]) {
-      groupedData[formattedDate][type] = 0;
-    }
-    groupedData[formattedDate][type]++;
   });
 
   const data = Object.keys(groupedData).map(date => ({
@@ -40,16 +44,30 @@ export default function IncidentBarChart() {
   const { incidents } = useSelector((state) => state.incident);
   const [groupedIncidents, setGroupedIncidents] = useState([]);
   const [selectedRiskType, setSelectedRiskType] = useState('All');
-  const [groupBy, setGroupBy] = useState('day'); // Estado para el tipo de agrupación
+  const [groupBy, setGroupBy] = useState('day'); // Grouping state
+  const [selectedComuna, setSelectedComuna] = useState('');
+  const [comunas, setComunas] = useState([
+    { id: 1, name: 'Comuna 1', polygon: comuna_uno },
+    { id: 2, name: 'Comuna 2', polygon: comuna_dos }, 
+    { id: 3, name: 'Comuna 3', polygon: comuna_tres }, 
+    { id: 4, name: 'Comuna 4', polygon: comuna_cuatro },
+    { id: 5, name: 'Comuna 5', polygon: comuna_cinco }, 
+    { id: 6, name: 'Comuna 6', polygon: comuna_seis }, 
+    { id: 7, name: 'Comuna 7', polygon: comuna_siete },
+    { id: 8, name: 'Comuna 8', polygon: [comuna_ocho, comuna_ocho_dos] }, 
+    { id: 9, name: 'Comuna 9', polygon: [comuna_nueve_uno, comuna_nueve_dos] }, 
+  ]);
 
   useEffect(() => {
     if (incidents.length > 0) {
       const filteredIncidents = selectedRiskType === 'All'
         ? incidents
         : incidents.filter(incident => incident.type_risk === selectedRiskType);
-      setGroupedIncidents(groupIncidentsByDateAndRisk(filteredIncidents, groupBy));
+
+      const updatedGroupedIncidents = groupIncidentsByDateAndRisk(filteredIncidents, groupBy, selectedComuna);
+      setGroupedIncidents(updatedGroupedIncidents);
     }
-  }, [incidents, selectedRiskType, groupBy]); // Añadir groupBy a las dependencias
+  }, [incidents, selectedRiskType, groupBy, selectedComuna]); // Add selectedComuna to dependencies
 
   const riskTypes = [...new Set(incidents.map(incident => incident.type_risk))];
 
@@ -83,6 +101,23 @@ export default function IncidentBarChart() {
               >
                 <MenuItem value="day">Día</MenuItem>
                 <MenuItem value="month">Mes</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Seleccionar Comuna</InputLabel>
+              <Select
+                label="Seleccionar Comuna"
+                value={selectedComuna}
+                onChange={(e) => setSelectedComuna(e.target.value)}
+              >
+                <MenuItem value="">Todas las Comunas</MenuItem>
+                {comunas.map((comuna) => (
+                  <MenuItem key={comuna.id} value={comuna.polygon}>
+                    {comuna.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>

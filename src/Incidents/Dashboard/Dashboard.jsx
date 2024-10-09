@@ -197,7 +197,7 @@ export default function Dashboard() {
               <Grid container spacing={3}>
                 <Grid item xs={12} md={12} lg={12}>
                   <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
-                    <PieCharts />
+                    <PieCharts incidents={incidents}  />
                   </Paper>
                   <Paper sx={{ mb: 3, p: 2, display: 'flex', flexDirection: 'column', height: '70vh' }}>
                     <IncidentBarChart />
