@@ -17,6 +17,7 @@
     "@mui/x-charts": "^7.4.0",
     "@reduxjs/toolkit": "^2.2.4",
     "@supabase/supabase-js": "^2.43.1",
+    "@turf/turf": "^7.1.0",
     "bcrypt": "^5.1.1",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",

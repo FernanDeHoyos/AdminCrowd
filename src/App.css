@@ -5,3 +5,10 @@
 #root{
     height: 100vh;
 }
+.custom-tooltip {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: black; /* Ajustar el color del texto si es necesario */
+  }
+  
