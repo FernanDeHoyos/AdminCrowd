@@ -73,6 +73,7 @@ export const Maps = ({ incidents }) => {
 
   const handleComunaInfoClick = (incident) => {
     ActiveIncident(incident);
+    localStorage.setItem('activeIncident', JSON.stringify(incidents));
     setSelectedIncident(incident);
   };
 

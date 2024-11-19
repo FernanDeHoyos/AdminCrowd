@@ -43,16 +43,13 @@ const comunas = [
 export const InformationComunas = () => {
     const { comuna } = useParams();
     const { decryptData } = Encrypt();
-    const { incidents } = useIncidentStore();
     const [polygonComuna, setPolygonComuna] = useState(null);
-    const [selectedComunac, setSelectedComuna] = useState(comuna || ''); // Inicializar con el parámetro de la URL.
+    const [selectedComunac, setSelectedComuna] = useState(comuna);
     const [filteredIncidents, setFilteredIncidents] = useState([]);
+    const [incidentsForPieChart, setIncidentsForPieChart] = useState([]);
 
-    const cipherText = localStorage.getItem('activeIncident');
-    const data = decryptData(cipherText, import.meta.env.VITE_SECRET_KEY);
-    const storedIncident = data ? JSON.parse(data) : null;
-
-    console.log(storedIncident);
+    const incidents = JSON.parse(localStorage.getItem('activeIncident'));
+    console.log(comuna);
 
     // Función para filtrar incidentes por comuna
     const handleComunaClick = (comuna) => {
@@ -61,7 +58,9 @@ export const InformationComunas = () => {
         );
 
         setFilteredIncidents(incidentesDentroDeLaComuna);
+        localStorage.setItem('activeIncidentComuna', JSON.stringify(incidentesDentroDeLaComuna));
         setPolygonComuna(comuna);
+        setIncidentsForPieChart(incidentesDentroDeLaComuna);
     };
 
     useEffect(() => {
@@ -69,9 +68,17 @@ export const InformationComunas = () => {
         const selectedComuna = comunas.find(c => c.nombre.toLowerCase() === comuna?.toLowerCase());
         if (selectedComuna) {
             handleComunaClick(selectedComuna);
+            setSelectedComuna(selectedComuna.nombre); // Sincronizar el select con la comuna de la URL
+        } else {
+            // Si no hay una comuna seleccionada, recuperar los datos de localStorage
+            const storedIncidents = JSON.parse(localStorage.getItem('activeIncidentComuna'));
+            if (storedIncidents) {
+                setFilteredIncidents(storedIncidents);
+                setIncidentsForPieChart(storedIncidents);
+            }
         }
     }, [comuna]);
-
+    
     useEffect(() => {
         // Buscar la comuna seleccionada por el select.
         const selectedComuna = comunas.find(c => c.nombre.toLowerCase() === selectedComunac?.toLowerCase());
@@ -79,11 +86,12 @@ export const InformationComunas = () => {
             handleComunaClick(selectedComuna);
         }
     }, [selectedComunac]);
+    
 
     return (
         <Grid container>
-            <Grid item md={6}>
-                <Box sx={{ position: 'relative', height: 550, width: '100%' }}>
+            <Grid item xs={12} sm={6} md={6}>
+                <Box sx={{  height: 550, width: '100%' }}>
                     <MapContainer
                         center={[8.742430770082228, -75.88651008818086]}
                         zoom={13}
@@ -126,9 +134,8 @@ export const InformationComunas = () => {
                         <FormControl fullWidth size="small" sx={{
                             position: 'absolute',
                             width: '50%',
+                            mt: 1,
                             backgroundColor: 'white',
-                            padding: '20px',
-                            borderRadius: '10px',
                             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                             zIndex: 1000,
                             overflowY: 'auto',
@@ -148,8 +155,8 @@ export const InformationComunas = () => {
                 </Box>
             </Grid>
 
-            <Grid item md={6}>
-                <PieCharts incidents={storedIncident} />
+            <Grid item xs={12} sm={6} md={6}>
+                <PieCharts incidents={incidentsForPieChart} />
             </Grid>
         </Grid>
     );
